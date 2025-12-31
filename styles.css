@@ -6,20 +6,28 @@
   --border: rgba(255,255,255,.10);
   --btn:#1a2752;
   --btn2:#22346c;
-  --accent:#4aa3ff;
   --danger:#ff6b6b;
 }
 
 *{box-sizing:border-box}
-body{
+
+html, body{
   margin:0;
-  font-family: "Vazirmatn", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  font-family: "Vazirmatn", system-ui, -apple-system, "Segoe UI", Arial, sans-serif !important;
   background: radial-gradient(1200px 800px at 50% -200px, rgba(74,163,255,.25), transparent 60%), var(--bg);
   color:var(--text);
 }
+
+/* Force Vazirmatn everywhere (fixes “still old font”) */
+textarea, input, button, label, p, h1, h2, h3, span, div {
+  font-family: "Vazirmatn", system-ui, -apple-system, "Segoe UI", Arial, sans-serif !important;
+}
+
 .wrap{max-width:1100px;margin:28px auto;padding:0 16px}
-.header h1{margin:0 0 8px 0;font-size:28px}
-.sub{margin:0;color:var(--muted)}
+
+.header h1{margin:0 0 8px 0;font-size:28px;font-weight:800}
+.sub{margin:0;color:var(--muted);font-weight:400}
+
 .card{
   margin-top:18px;
   background: rgba(17,26,51,.92);
@@ -28,17 +36,25 @@ body{
   padding:18px;
   box-shadow: 0 10px 25px rgba(0,0,0,.25);
 }
-.card.small{padding:16px}
+
 .grid{
   display:grid;
   grid-template-columns: 1fr 1fr;
   gap:16px;
   margin-top:14px;
 }
+
 @media (max-width:900px){
   .grid{grid-template-columns:1fr}
 }
-.label{display:block;margin:10px 0 8px 0;color:var(--muted);font-size:14px}
+
+.label{
+  display:block;
+  margin:10px 0 8px 0;
+  color:var(--muted);
+  font-size:14px;
+}
+
 .textarea, .input{
   width:100%;
   border-radius:14px;
@@ -48,9 +64,20 @@ body{
   padding:12px 12px;
   outline:none;
 }
-.textarea{resize:vertical;min-height:160px;direction:ltr;text-align:left;font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace}
+
+.textarea{
+  resize:vertical;
+  min-height:160px;
+  direction:ltr;
+  text-align:left;
+  /* keep it readable for URLs/configs */
+  letter-spacing: .2px;
+}
+
 #output{opacity:.95}
+
 .btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+
 .btn{
   border:1px solid var(--border);
   background: var(--btn);
@@ -58,13 +85,23 @@ body{
   padding:10px 12px;
   border-radius:12px;
   cursor:pointer;
+  font-weight:600;
 }
+
 .btn:hover{background:var(--btn2)}
-.btn.primary{background: rgba(74,163,255,.22); border-color: rgba(74,163,255,.45)}
+
+.btn.primary{
+  background: rgba(74,163,255,.22);
+  border-color: rgba(74,163,255,.45);
+}
 .btn.primary:hover{background: rgba(74,163,255,.30)}
+
 .btn.ghost{background: transparent}
+
 .row{display:flex;align-items:center;gap:12px;margin-top:6px}
+
 .seg{display:flex;gap:8px}
+
 .seg-btn{
   border:1px solid var(--border);
   background: transparent;
@@ -72,14 +109,31 @@ body{
   padding:8px 12px;
   border-radius:12px;
   cursor:pointer;
+  font-weight:600;
 }
-.seg-btn.active{background: rgba(74,163,255,.18); color: var(--text); border-color: rgba(74,163,255,.45)}
+
+.seg-btn.active{
+  background: rgba(74,163,255,.18);
+  color: var(--text);
+  border-color: rgba(74,163,255,.45);
+}
+
 .note{
   margin-top:12px;
   color: var(--muted);
   font-size:13px;
-  line-height:1.6;
+  line-height:1.8;
 }
-.footer{margin-top:12px;display:flex;justify-content:flex-end}
-.status{color:var(--muted);font-size:13px}
+
+.footer{
+  margin-top:12px;
+  display:flex;
+  justify-content:flex-end
+}
+
+.status{
+  color:var(--muted);
+  font-size:13px
+}
+
 .hidden{display:none}
