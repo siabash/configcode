@@ -1,249 +1,240 @@
-// =======================
-// Persian-look mapping (reversible)
-// =======================
+/* =========================================================
+   Persian-look Encoder / Decoder
+   Works fully client-side (GitHub Pages compatible)
+   ========================================================= */
 
-// یک alphabet فارسی‌نما برای نمایش (فقط برای ظاهر).
-// ما bytes را به base64url تبدیل می‌کنیم و بعد هر کاراکتر را به یک کاراکتر فارسی‌نما نگاشت می‌کنیم.
-const b64urlAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-const faAlphabet     = "ابتثجچحخدذرزژسشصضطظعغفقکگلمنوهیپتژگسشعفقلمنوهیپ"; 
-// بالا ممکن است تکرار داشته باشد؛ پس ما به جای این، از مجموعه یونیک و کافی استفاده می‌کنیم:
+/* ---------- Base64URL alphabet (64 chars) ---------- */
+const B64URL_ALPHABET =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-const faMapFrom = b64urlAlphabet.split("");
-const faMapTo   = [
-  "ا","ب","پ","ت","ث","ج","چ","ح","خ","د","ذ","ر","ز","ژ","س","ش","ص","ض","ط","ظ","ع","غ",
-  "ف","ق","ک","گ","ل","م","ن","و","ه","ی",
-  "آ","ؤ","ئ","ة","ۀ","ء","ی","ک","گ","پ","چ","ژ","ڤ","۰","۱","۲","۳","۴","۵","۶","۷","۸","۹",
-  "ـ","ً","ٌ"
-]; // 64 تایی
+/* ---------- Persian-look UNIQUE 64-char mapping ---------- */
+const FA_MAP = [
+  // 32 letters
+  "ا","ب","پ","ت","ث","ج","چ","ح","خ","د","ذ","ر","ز","ژ","س","ش",
+  "ص","ض","ط","ظ","ع","غ","ف","ق","ک","گ","ل","م","ن","و","ه","ی",
 
-if (faMapTo.length !== 64) {
-  console.warn("faMapTo must be length 64, current:", faMapTo.length);
+  // 10 Persian digits
+  "۰","۱","۲","۳","۴","۵","۶","۷","۸","۹",
+
+  // 10 Arabic digits (different Unicode)
+  "٠","١","٢","٣","٤","٥","٦","٧","٨","٩",
+
+  // 12 extra unique chars
+  "ء","آ","أ","ؤ","إ","ئ","ة","ۀ","َ","ُ","ِ","ّ"
+];
+
+/* ---------- Safety check ---------- */
+if (FA_MAP.length !== 64 || new Set(FA_MAP).size !== 64) {
+  throw new Error("FA_MAP must contain exactly 64 UNIQUE characters.");
 }
 
+/* ---------- Build maps ---------- */
 const toFa = new Map();
 const fromFa = new Map();
+
 for (let i = 0; i < 64; i++) {
-  toFa.set(faMapFrom[i], faMapTo[i]);
-  fromFa.set(faMapTo[i], faMapFrom[i]);
+  toFa.set(B64URL_ALPHABET[i], FA_MAP[i]);
+  fromFa.set(FA_MAP[i], B64URL_ALPHABET[i]);
 }
 
-// Prefix برای تشخیص نوع خروجی
-const PREFIX_NOPASS = "فص:";  // یعنی فارسی‌نما، ساده
-const PREFIX_PASS   = "فپ:";  // یعنی فارسی‌نما، با پسورد
+/* ---------- Prefixes ---------- */
+const PREFIX_NOPASS = "فص:";
+const PREFIX_PASS = "فپ:";
 
-// =======================
-// Helpers
-// =======================
+/* ---------- Helpers ---------- */
 const $ = (id) => document.getElementById(id);
 
-function setStatus(msg, isErr=false){
+function setStatus(msg, isError = false) {
   const el = $("status");
   el.textContent = msg;
-  el.style.color = isErr ? "var(--danger)" : "";
-  setTimeout(() => { el.textContent = ""; el.style.color=""; }, 3500);
+  el.style.color = isError ? "#ff6b6b" : "";
+  setTimeout(() => {
+    el.textContent = "";
+    el.style.color = "";
+  }, 3500);
 }
 
-function bytesToB64Url(bytes){
-  // bytes -> base64 -> base64url
+function bytesToBase64Url(bytes) {
   let binary = "";
-  for (const b of bytes) binary += String.fromCharCode(b);
-  const b64 = btoa(binary);
-  return b64.replaceAll("+","-").replaceAll("/","_").replaceAll("=","");
+  bytes.forEach((b) => (binary += String.fromCharCode(b)));
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
-function b64UrlToBytes(b64url){
-  let b64 = b64url.replaceAll("-","+").replaceAll("_","/");
-  // pad
+
+function base64UrlToBytes(b64url) {
+  let b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
   while (b64.length % 4) b64 += "=";
   const binary = atob(b64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
+  return Uint8Array.from(binary, (c) => c.charCodeAt(0));
 }
 
-function b64UrlToFa(b64url){
-  let out = "";
-  for (const ch of b64url){
-    const mapped = toFa.get(ch);
-    if (!mapped) throw new Error("Unexpected base64url char: " + ch);
-    out += mapped;
-  }
-  return out;
-}
-function faToB64Url(faText){
-  let out = "";
-  for (const ch of faText){
-    const mapped = fromFa.get(ch);
-    if (!mapped) throw new Error("Invalid encoded char: " + ch);
-    out += mapped;
-  }
-  return out;
+function base64UrlToFa(b64url) {
+  return [...b64url].map((c) => toFa.get(c)).join("");
 }
 
-// =======================
-// No-password mode (reversible obfuscation)
-// =======================
-function encodeNoPass(plainText){
-  const bytes = new TextEncoder().encode(plainText);
-  const b64url = bytesToB64Url(bytes);
-  const fa = b64UrlToFa(b64url);
-  return PREFIX_NOPASS + fa;
+function faToBase64Url(faText) {
+  return [...faText].map((c) => fromFa.get(c)).join("");
 }
-function decodeNoPass(encoded){
-  if (!encoded.startsWith(PREFIX_NOPASS)) throw new Error("Prefix mismatch");
+
+/* =========================================================
+   No-password mode (reversible obfuscation)
+   ========================================================= */
+function encodeNoPass(text) {
+  const bytes = new TextEncoder().encode(text);
+  const b64url = bytesToBase64Url(bytes);
+  return PREFIX_NOPASS + base64UrlToFa(b64url);
+}
+
+function decodeNoPass(encoded) {
+  if (!encoded.startsWith(PREFIX_NOPASS))
+    throw new Error("Invalid prefix");
   const fa = encoded.slice(PREFIX_NOPASS.length);
-  const b64url = faToB64Url(fa);
-  const bytes = b64UrlToBytes(b64url);
+  const b64url = faToBase64Url(fa);
+  const bytes = base64UrlToBytes(b64url);
   return new TextDecoder().decode(bytes);
 }
 
-// =======================
-// With-password mode (AES-GCM)
-// =======================
-async function deriveKeyFromPassword(password, salt){
+/* =========================================================
+   Password mode (AES-GCM)
+   ========================================================= */
+async function deriveKey(password, salt) {
   const enc = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
     "raw",
     enc.encode(password),
-    { name: "PBKDF2" },
+    "PBKDF2",
     false,
     ["deriveKey"]
   );
 
   return crypto.subtle.deriveKey(
-    { name:"PBKDF2", salt, iterations: 150000, hash:"SHA-256" },
+    {
+      name: "PBKDF2",
+      salt,
+      iterations: 150000,
+      hash: "SHA-256",
+    },
     keyMaterial,
-    { name:"AES-GCM", length: 256 },
+    { name: "AES-GCM", length: 256 },
     false,
-    ["encrypt","decrypt"]
+    ["encrypt", "decrypt"]
   );
 }
 
-async function encodeWithPass(plainText, password){
+async function encodeWithPass(text, password) {
   const enc = new TextEncoder();
   const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv   = crypto.getRandomValues(new Uint8Array(12));
-  const key  = await deriveKeyFromPassword(password, salt);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(password, salt);
 
-  const cipher = await crypto.subtle.encrypt(
-    { name:"AES-GCM", iv },
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
     key,
-    enc.encode(plainText)
+    enc.encode(text)
   );
 
-  // Pack: salt(16) + iv(12) + cipherBytes
-  const cipherBytes = new Uint8Array(cipher);
+  const cipherBytes = new Uint8Array(encrypted);
   const packed = new Uint8Array(16 + 12 + cipherBytes.length);
+
   packed.set(salt, 0);
   packed.set(iv, 16);
   packed.set(cipherBytes, 28);
 
-  const b64url = bytesToB64Url(packed);
-  const fa = b64UrlToFa(b64url);
-  return PREFIX_PASS + fa;
+  const b64url = bytesToBase64Url(packed);
+  return PREFIX_PASS + base64UrlToFa(b64url);
 }
 
-async function decodeWithPass(encoded, password){
-  if (!encoded.startsWith(PREFIX_PASS)) throw new Error("Prefix mismatch");
-  const fa = encoded.slice(PREFIX_PASS.length);
-  const b64url = faToB64Url(fa);
-  const packed = b64UrlToBytes(b64url);
+async function decodeWithPass(encoded, password) {
+  if (!encoded.startsWith(PREFIX_PASS))
+    throw new Error("Invalid prefix");
 
-  const salt = packed.slice(0,16);
-  const iv   = packed.slice(16,28);
+  const fa = encoded.slice(PREFIX_PASS.length);
+  const b64url = faToBase64Url(fa);
+  const packed = base64UrlToBytes(b64url);
+
+  const salt = packed.slice(0, 16);
+  const iv = packed.slice(16, 28);
   const data = packed.slice(28);
 
-  const key = await deriveKeyFromPassword(password, salt);
-
-  const plainBuf = await crypto.subtle.decrypt(
-    { name:"AES-GCM", iv },
+  const key = await deriveKey(password, salt);
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv },
     key,
     data
   );
 
-  return new TextDecoder().decode(new Uint8Array(plainBuf));
+  return new TextDecoder().decode(new Uint8Array(decrypted));
 }
 
-// =======================
-// UI logic
-// =======================
-let mode = "nopass"; // "nopass" | "pass"
+/* =========================================================
+   UI Logic
+   ========================================================= */
+let mode = "nopass";
 
-function setMode(newMode){
-  mode = newMode;
-  $("modeNoPass").classList.toggle("active", mode==="nopass");
-  $("modeWithPass").classList.toggle("active", mode==="pass");
-  $("passRow").classList.toggle("hidden", mode!=="pass");
+function setMode(m) {
+  mode = m;
+  $("modeNoPass").classList.toggle("active", m === "nopass");
+  $("modeWithPass").classList.toggle("active", m === "pass");
+  $("passRow").classList.toggle("hidden", m !== "pass");
 }
 
-$("modeNoPass").addEventListener("click", () => setMode("nopass"));
-$("modeWithPass").addEventListener("click", () => setMode("pass"));
+$("modeNoPass").onclick = () => setMode("nopass");
+$("modeWithPass").onclick = () => setMode("pass");
 
-$("encodeBtn").addEventListener("click", async () => {
-  try{
-    const input = $("input").value ?? "";
-    if (!input.trim()) return setStatus("ورودی خالیه.", true);
+$("encodeBtn").onclick = async () => {
+  try {
+    const input = $("input").value;
+    if (!input.trim()) return setStatus("ورودی خالی است", true);
 
-    if (mode === "nopass"){
+    if (mode === "nopass") {
       $("output").value = encodeNoPass(input);
-      setStatus("کدگذاری شد ✅");
     } else {
-      const pass = $("password").value ?? "";
-      if (!pass) return setStatus("پسورد رو وارد کن.", true);
+      const pass = $("password").value;
+      if (!pass) return setStatus("پسورد لازم است", true);
       $("output").value = await encodeWithPass(input, pass);
-      setStatus("رمزنگاری شد ✅");
     }
-  } catch(e){
-    setStatus("خطا: " + (e?.message || e), true);
+    setStatus("کدگذاری انجام شد ✅");
+  } catch (e) {
+    setStatus("خطا: " + e.message, true);
   }
-});
+};
 
-$("decodeBtn").addEventListener("click", async () => {
-  try{
-    const input = $("input").value ?? "";
-    if (!input.trim()) return setStatus("ورودی خالیه.", true);
+$("decodeBtn").onclick = async () => {
+  try {
+    const input = $("input").value;
+    if (!input.trim()) return setStatus("ورودی خالی است", true);
 
-    if (input.startsWith(PREFIX_PASS)){
-      const pass = $("password").value ?? "";
-      if (!pass) return setStatus("این متن با پسورد ساخته شده؛ پسورد لازم است.", true);
+    if (input.startsWith(PREFIX_PASS)) {
+      const pass = $("password").value;
+      if (!pass) return setStatus("پسورد لازم است", true);
       $("output").value = await decodeWithPass(input, pass);
-      setStatus("بازگشایی شد ✅");
-      return;
-    }
-    if (input.startsWith(PREFIX_NOPASS)){
+    } else {
       $("output").value = decodeNoPass(input);
-      setStatus("بازگشایی شد ✅");
-      return;
     }
-
-    // اگر کاربر prefix نداد: حدس بزن nopass
-    $("output").value = decodeNoPass(input);
-    setStatus("بازگشایی شد ✅ (بدون پسورد)");
-  } catch(e){
-    setStatus("خطا: " + (e?.message || e), true);
+    setStatus("بازگشایی شد ✅");
+  } catch (e) {
+    setStatus("خطا: متن یا پسورد اشتباه است", true);
   }
-});
+};
 
-$("copyBtn").addEventListener("click", async () => {
-  try{
-    await navigator.clipboard.writeText($("output").value || "");
-    setStatus("کپی شد ✅");
-  } catch {
-    setStatus("کپی ناموفق بود. دستی کپی کن.", true);
-  }
-});
+$("copyBtn").onclick = async () => {
+  await navigator.clipboard.writeText($("output").value);
+  setStatus("کپی شد 📋");
+};
 
-$("swapBtn").addEventListener("click", () => {
-  const a = $("input").value;
-  $("input").value = $("output").value;
-  $("output").value = a;
-  setStatus("جابجا شد ↔️");
-});
+$("swapBtn").onclick = () => {
+  [$("input").value, $("output").value] = [
+    $("output").value,
+    $("input").value,
+  ];
+};
 
-$("clearBtn").addEventListener("click", () => {
+$("clearBtn").onclick = () => {
   $("input").value = "";
   $("output").value = "";
-  setStatus("پاک شد");
-});
+};
 
-// default
+/* ---------- Default ---------- */
 setMode("nopass");
