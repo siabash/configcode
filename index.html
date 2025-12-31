@@ -3,11 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
   <title>فارسی‌نما Encoder/Decoder</title>
+
+  <!-- Vazirmatn from Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
   <main class="wrap">
@@ -34,6 +38,7 @@
         <div>
           <label class="label" for="input">ورودی (متن اصلی یا متن کد شده):</label>
           <textarea id="input" class="textarea" rows="8" placeholder="اینجا paste کن…"></textarea>
+
           <div class="btn-row">
             <button id="encodeBtn" class="btn primary" type="button">کدگذاری</button>
             <button id="decodeBtn" class="btn" type="button">بازگشایی</button>
@@ -45,6 +50,7 @@
         <div>
           <label class="label" for="output">خروجی:</label>
           <textarea id="output" class="textarea" rows="8" placeholder="خروجی اینجاست…" readonly></textarea>
+
           <div class="btn-row">
             <button id="copyBtn" class="btn" type="button">کپی خروجی</button>
           </div>
@@ -60,18 +66,9 @@
         <span id="status" class="status"></span>
       </footer>
     </section>
-
-    <section class="card small">
-      <h2>چطور روی GitHub Pages بیارم بالا؟</h2>
-      <ol>
-        <li>یک ریپو جدید بساز (Public)</li>
-        <li>این فایل‌ها را داخلش بذار و Push کن</li>
-        <li>Settings → Pages → Deploy from branch → branch: main / root</li>
-        <li>آدرس سایتت ساخته میشه</li>
-      </ol>
-    </section>
   </main>
 
+  <!-- IMPORTANT: use your cache-busting v2 js -->
   <script src="app.v2.js?v=2"></script>
 </body>
 </html>
