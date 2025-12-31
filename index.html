@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>فارسی‌نما Encoder/Decoder</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="header">
+      <h1>کدگذار/بازگشا (فارسی‌نما)</h1>
+      <p class="sub">هر متن (URL/Config/Token/… با همه سمبل‌ها) → خروجی فارسی‌نما → برگشت دقیق</p>
+    </header>
+
+    <section class="card">
+      <div class="row">
+        <label class="label">حالت:</label>
+        <div class="seg">
+          <button id="modeNoPass" class="seg-btn active" type="button">بدون پسورد</button>
+          <button id="modeWithPass" class="seg-btn" type="button">با پسورد</button>
+        </div>
+      </div>
+
+      <div id="passRow" class="row hidden">
+        <label class="label" for="password">پسورد:</label>
+        <input id="password" type="password" class="input" placeholder="یک پسورد وارد کن (برای رمزنگاری واقعی)" />
+      </div>
+
+      <div class="grid">
+        <div>
+          <label class="label" for="input">ورودی (متن اصلی یا متن کد شده):</label>
+          <textarea id="input" class="textarea" rows="8" placeholder="اینجا paste کن…"></textarea>
+          <div class="btn-row">
+            <button id="encodeBtn" class="btn primary" type="button">کدگذاری</button>
+            <button id="decodeBtn" class="btn" type="button">بازگشایی</button>
+            <button id="swapBtn" class="btn" type="button">جابجایی ⇄</button>
+            <button id="clearBtn" class="btn ghost" type="button">پاک کردن</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="label" for="output">خروجی:</label>
+          <textarea id="output" class="textarea" rows="8" placeholder="خروجی اینجاست…" readonly></textarea>
+          <div class="btn-row">
+            <button id="copyBtn" class="btn" type="button">کپی خروجی</button>
+          </div>
+
+          <div class="note">
+            <div><b>نکته:</b> در حالت بدون پسورد، هر کسی با همین ابزار می‌تواند دیکد کند.</div>
+            <div>در حالت با پسورد، بدون پسورد خروجی قابل بازگشایی نیست.</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <span id="status" class="status"></span>
+      </footer>
+    </section>
+
+    <section class="card small">
+      <h2>چطور روی GitHub Pages بیارم بالا؟</h2>
+      <ol>
+        <li>یک ریپو جدید بساز (Public)</li>
+        <li>این فایل‌ها را داخلش بذار و Push کن</li>
+        <li>Settings → Pages → Deploy from branch → branch: main / root</li>
+        <li>آدرس سایتت ساخته میشه</li>
+      </ol>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
