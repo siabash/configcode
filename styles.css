@@ -13,7 +13,7 @@
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  font-family: "Vazirmatn", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   background: radial-gradient(1200px 800px at 50% -200px, rgba(74,163,255,.25), transparent 60%), var(--bg);
   color:var(--text);
 }
