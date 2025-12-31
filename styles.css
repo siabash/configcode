@@ -1,0 +1,85 @@
+:root{
+  --bg:#0b1020;
+  --card:#111a33;
+  --text:#e8ecff;
+  --muted:#a9b3d6;
+  --border: rgba(255,255,255,.10);
+  --btn:#1a2752;
+  --btn2:#22346c;
+  --accent:#4aa3ff;
+  --danger:#ff6b6b;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  background: radial-gradient(1200px 800px at 50% -200px, rgba(74,163,255,.25), transparent 60%), var(--bg);
+  color:var(--text);
+}
+.wrap{max-width:1100px;margin:28px auto;padding:0 16px}
+.header h1{margin:0 0 8px 0;font-size:28px}
+.sub{margin:0;color:var(--muted)}
+.card{
+  margin-top:18px;
+  background: rgba(17,26,51,.92);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.25);
+}
+.card.small{padding:16px}
+.grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:16px;
+  margin-top:14px;
+}
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr}
+}
+.label{display:block;margin:10px 0 8px 0;color:var(--muted);font-size:14px}
+.textarea, .input{
+  width:100%;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background: rgba(0,0,0,.22);
+  color:var(--text);
+  padding:12px 12px;
+  outline:none;
+}
+.textarea{resize:vertical;min-height:160px;direction:ltr;text-align:left;font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace}
+#output{opacity:.95}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.btn{
+  border:1px solid var(--border);
+  background: var(--btn);
+  color: var(--text);
+  padding:10px 12px;
+  border-radius:12px;
+  cursor:pointer;
+}
+.btn:hover{background:var(--btn2)}
+.btn.primary{background: rgba(74,163,255,.22); border-color: rgba(74,163,255,.45)}
+.btn.primary:hover{background: rgba(74,163,255,.30)}
+.btn.ghost{background: transparent}
+.row{display:flex;align-items:center;gap:12px;margin-top:6px}
+.seg{display:flex;gap:8px}
+.seg-btn{
+  border:1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  padding:8px 12px;
+  border-radius:12px;
+  cursor:pointer;
+}
+.seg-btn.active{background: rgba(74,163,255,.18); color: var(--text); border-color: rgba(74,163,255,.45)}
+.note{
+  margin-top:12px;
+  color: var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+.footer{margin-top:12px;display:flex;justify-content:flex-end}
+.status{color:var(--muted);font-size:13px}
+.hidden{display:none}
